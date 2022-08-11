@@ -9,32 +9,18 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      Write-Host ' - - - - - - - - - - - - - - - - - - - - - - - - -'
-      Write-Host ' reflect Azure Devops repo changes to GitHub repo'
-      Write-Host ' - - - - - - - - - - - - - - - - - - - - - - - - - '
-      $stageDir = '$(Build.SourcesDirectory)' | Split-Path
-      $githubDir = $stageDir +"\"+"gitHub"
-      $destination = $githubDir +"\"+"GithubIntegrationTest.git"
-      #please provide your username
+      mkdir copyrepo
       $alias = 'Wariorek:’+ "$(Github.PAT)"
-      #Please make sure, you remove https from azure-repo-clone-url
       $destURL = 'https://$(AzureDevOps.PAT)@marcinmmazurek.visualstudio.com/MyFirstProject/_git/GithubIntegrationTest'
-      #Please make sure, you remove https from github-repo-clone-url
       $sourceURL = 'https://' + $alias + '@github.com/Wariorek/MyIdolSpring.git'
-      #Check if the parent directory exists and delete
-
-      Set-Location $destination
-      Write-Output '*****Git removing remote secondary****'
-      git remote rm secondary
-      Write-Output '*****Git remote add****'
-      git remote add --mirror=fetch secondary $destURL
-      Write-Output '*****Git fetch origin****'
+      Set-Location "$(Build.SourcesDirectory)/copyrepo"
+      git clone --mirror $sourceURL
+      Set-Location "$(Build.SourcesDirectory)/copyrepo/$(GITLABREPONAME)/"
+      Write-Host "*****Git removing remote origin****"
+      git remote rm origin
+      Write-Output "*****Git remote add****"
+      git remote add --mirror=fetch origin $destURL
+      Write-Output "*****Git fetch origin****"
       git fetch $sourceURL
-      Write-Output '*****Git push secondary****'
-      git push secondary --all
-      Write-Output '**Azure Devops repo synced with Github repo**'
-      Set-Location $stageDir
-      if((Test-Path -path $githubDir))
-      {
-       Remove-Item -Path $githubDir -Recurse -force
-      }
+      Write-Output "*****Git push to Azure Repos****"
+      git push origin --all -f

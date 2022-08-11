@@ -15,6 +15,7 @@ steps:
       $sourceURL = 'https://' + $alias + '@github.com/Wariorek/MyIdolSpring.git'
       Set-Location "$(Build.SourcesDirectory)/copyrepo"
       git clone --mirror $sourceURL
+      Set-Location "$(Build.SourcesDirectory)/copyrepo/MyIdolSpring.git"
       Write-Host "*****Git removing remote origin****"
       git remote rm origin
       Write-Output "*****Git remote add****"
